@@ -18,6 +18,7 @@
       --row-gap: 2.9mm;
       --font-size: 5.7mm;
       --char-offset: 0.8mm;
+      --copy-font: KaiTi, STKaiti, "楷体", "华文楷体", serif;
     }
 
     * { box-sizing: border-box; }
@@ -182,7 +183,7 @@
       justify-content: center;
       padding-bottom: var(--char-offset);
       color: var(--ink-color);
-      font-family: KaiTi, STKaiti, "楷体", "华文楷体", serif;
+      font-family: var(--copy-font);
       font-size: var(--font-size);
       font-weight: 500;
       line-height: 1;
@@ -257,11 +258,11 @@
   <div class="app">
     <aside class="panel">
       <h1>申论答题纸格式字帖</h1>
-      <p class="desc">已按你的实测结果做打印补偿：代码里设置为 8mm × 9mm，实际打印目标约为 7mm × 8mm；每页 25 格 × 24 行 = 600 字。</p>
+      <p class="desc">已按你的实测结果做打印补偿：代码里设置为 8mm × 9mm，实际打印目标约为 7mm × 8mm；可切换字体，默认就是楷体。</p>
 
       <div class="row">
         <div>
-          <label for="fontInput">楷体字号</label>
+          <label for="fontInput">字号</label>
           <input id="fontInput" type="number" min="4" max="8" step="0.1" value="5.7" />
         </div>
         <div>
@@ -269,6 +270,15 @@
           <input id="offsetInput" type="number" min="0" max="2" step="0.1" value="0.8" />
         </div>
       </div>
+
+      <label for="fontFamilyInput">字体</label>
+      <select id="fontFamilyInput">
+        <option value="kaiti" selected>楷体 / 华文楷体</option>
+        <option value="songti">宋体</option>
+        <option value="fangsong">仿宋</option>
+        <option value="heiti">黑体</option>
+        <option value="system">系统默认字体</option>
+      </select>
 
       <div class="row">
         <div>
@@ -311,8 +321,17 @@
     const contentInput = document.getElementById('contentInput');
     const fontInput = document.getElementById('fontInput');
     const offsetInput = document.getElementById('offsetInput');
+    const fontFamilyInput = document.getElementById('fontFamilyInput');
     const gridColorInput = document.getElementById('gridColorInput');
     const showPageNoInput = document.getElementById('showPageNoInput');
+
+    const FONT_MAP = {
+      kaiti: 'KaiTi, STKaiti, "楷体", "华文楷体", serif',
+      songti: 'SimSun, "宋体", STSong, serif',
+      fangsong: 'FangSong, "仿宋", STFangsong, serif',
+      heiti: 'SimHei, "黑体", "Microsoft YaHei", sans-serif',
+      system: '-apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif'
+    };
     const pagesEl = document.getElementById('pages');
 
     const COLS = 25;
@@ -401,10 +420,12 @@
       const font = Number(fontInput.value) || 5.7;
       const offset = Number(offsetInput.value) || 0.8;
       const gridColor = gridColorInput.value || '#e4a0a0';
+      const selectedFont = FONT_MAP[fontFamilyInput.value] || FONT_MAP.kaiti;
 
       document.documentElement.style.setProperty('--font-size', `${font}mm`);
       document.documentElement.style.setProperty('--char-offset', `${offset}mm`);
       document.documentElement.style.setProperty('--grid-color', gridColor);
+      document.documentElement.style.setProperty('--copy-font', selectedFont);
 
       const rows = splitIntoRows(contentInput.value);
       const pageCount = Math.max(1, Math.ceil(rows.length / ROWS));
@@ -416,7 +437,7 @@
       }
     }
 
-    [contentInput, fontInput, offsetInput, gridColorInput, showPageNoInput].forEach(el => {
+    [contentInput, fontInput, offsetInput, fontFamilyInput, gridColorInput, showPageNoInput].forEach(el => {
       el.addEventListener('input', renderCopybook);
       el.addEventListener('change', renderCopybook);
     });
